@@ -1,0 +1,357 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#091015">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="NickHunt">
+  <meta name="description" content="Генератор коротких Telegram-юзернеймов с проверкой через публичные источники">
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="apple-touch-icon" href="./icon-180.png">
+  <title>NickHunt — Telegram Username Finder</title>
+  <style>
+    :root {color-scheme:dark; --bg:#091015;--panel:#121c23;--panel2:#15232a;--border:#28404b;--text:#f2f8f8;--muted:#8ea2aa;--mint:#83f4c3;--teal:#33d7ae;--yellow:#f5d276;--danger:#fa9696;--blue:#9fc8ff;}
+    * {box-sizing:border-box} html{scroll-behavior:smooth}
+    body{margin:0; min-height:100svh; padding:env(safe-area-inset-top) 0 calc(96px + env(safe-area-inset-bottom)); color:var(--text); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif; background: radial-gradient(ellipse 80% 32% at 50% -5%,#163b39 0%,transparent 75%),var(--bg); -webkit-font-smoothing:antialiased;}
+    button,select{font:inherit} button{cursor:pointer;touch-action:manipulation} button:disabled{cursor:default;opacity:.65}
+    .wrap{width:min(100%,540px);padding:25px 19px 36px;margin:0 auto}
+    header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:7px 0 32px}
+    .brand{display:flex;align-items:center;gap:12px;font-size:17px;font-weight:900;letter-spacing:.3px}
+    .logo{width:45px;height:45px;display:grid;place-items:center;color:#08221c;background:linear-gradient(135deg,#bbffdd,#41d6b1);border-radius:15px;box-shadow:0 8px 30px #4adfbb23}
+    .brand small{display:block;color:var(--muted);font-size:10px;font-weight:650;letter-spacing:2px;margin-top:2px}
+    .live{display:flex;align-items:center;gap:7px;border:1px solid #2d4f48;border-radius:99px;padding:9px 11px;background:#142923;color:#a7f8d2;font-size:11px;font-weight:750;white-space:nowrap}
+    .dot{width:7px;height:7px;border-radius:50%;background:#76edb2;box-shadow:0 0 10px #76edb2}
+    .kicker{font-size:11px;color:var(--mint);font-weight:850;letter-spacing:2px;margin:0 0 12px}
+    h1{font-size:clamp(35px,9.3vw,52px);line-height:1.03;letter-spacing:-2.3px;font-weight:880;margin:0 0 15px}
+    h1 span{color:var(--mint)}.subtitle{font-size:14px;line-height:1.6;max-width:380px;color:#adc1c8;margin:0 0 27px}
+    .card{background:linear-gradient(145deg,#132127,#101920);border:1px solid var(--border);border-radius:22px;padding:18px;margin-bottom:18px;box-shadow:0 13px 30px #00000018}
+    .sectionlabel{font-size:11px;color:#9caeb5;font-weight:800;letter-spacing:1px;text-transform:uppercase;margin-bottom:12px}
+    .seg{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}.seg button{border:1px solid #2a4449;background:#1a2b31;color:#aebfc6;border-radius:11px;min-height:48px;font-size:13px;font-weight:750;padding:8px 5px;transition:.16s}
+    .seg button.active{color:#082219;background:var(--mint);border-color:var(--mint)}
+    .hint{font-size:11px;line-height:1.4;color:var(--muted);margin-top:11px;min-height:30px}
+    .space{height:14px}
+    .styles{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+    .style{border:1px solid #29444c;background:#16242c;text-align:left;border-radius:13px;min-height:61px;padding:11px 12px;color:#e2ecef}
+    .style strong{display:block;font-size:13px;font-weight:850;margin-bottom:5px}
+    .style small{font-size:11px;color:#91aab3}
+    .style.active{border-color:var(--mint);background:#1c3b34;box-shadow:0 0 0 1px #84f4c329 inset}
+    .style.active small{color:#b3e7d4}
+    .find{width:100%;min-height:61px;display:flex;justify-content:center;align-items:center;gap:10px;border:0;border-radius:15px;background:linear-gradient(110deg,#acffd9,#6ee6bd);color:#05231a;font-weight:900;font-size:16px;letter-spacing:-.2px;margin-top:16px;box-shadow:0 10px 28px #71e7bc22}
+    .find:active{transform:scale(.99)}
+    .tiny{display:flex;justify-content:center;gap:8px;align-items:center;color:var(--muted);font-size:11px;margin:12px 0 0;text-align:center}
+    .stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:25px 0 22px}
+    .stat{padding:13px 9px;border-radius:15px;background:#101e24;border:1px solid #253c44;text-align:center}
+    .stat strong{display:block;font-size:27px;letter-spacing:-1px;font-variant-numeric:tabular-nums}
+    .stat small{display:block;color:var(--muted);font-size:10px;line-height:1.5;margin-top:3px}
+    .stat:first-child strong{color:var(--mint)}
+    .listtop{display:flex;justify-content:space-between;align-items:center;gap:10px;margin:25px 0 13px}
+    h2{font-size:19px;letter-spacing:-.5px;margin:0}
+    .filter{border:1px solid #28434a;background:#132129;border-radius:11px;color:#e2ecef;padding:9px 12px;font-size:12px;max-width:164px}
+    .note{border:1px solid #24444a;border-radius:12px;background:#112326;color:#adcad0;font-size:12px;line-height:1.6;padding:11px 13px;margin-bottom:15px}
+    .note.warn{background:#2e2a1e;border-color:#625638;color:#f4dda7}
+    .list{display:flex;flex-direction:column;gap:9px}
+    .item{background:#111e25;border:1px solid #263e47;border-radius:15px;padding:13px 12px;animation:appear .2s ease-out}
+    @keyframes appear{from{opacity:.5;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+    .itemhead{display:flex;justify-content:space-between;align-items:center;gap:7px;min-width:0}
+    .username{font-size:19px;font-weight:880;letter-spacing:-.25px;color:#f4fbfb;min-width:0;overflow-wrap:anywhere}
+    .username b{color:#75edbd;font-weight:850}
+    .fav{width:34px;height:34px;flex:none;border:1px solid #31474d;border-radius:11px;background:#1b2a31;color:#9bb2b9;font-size:19px;line-height:1}
+    .fav.on{color:#f6d88a;border-color:#735d31;background:#312a1d}
+    .subrow{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin:7px 0 13px}
+    .tag{font-size:10px;padding:5px 8px;font-weight:800;border-radius:7px;background:#27353d;color:#bacbd0}
+    .tag.free{background:#143a2c;color:#96f5c4}.tag.taken{background:#382b30;color:#f3a8ad}.tag.unknown{background:#313b44;color:#c8d5df}.tag.collectible{background:#363020;color:#f5d27e}
+    .actions{display:flex;gap:7px}
+    .smallbtn{flex:1;min-width:0;text-align:center;display:flex;align-items:center;justify-content:center;gap:5px;padding:9px 5px;border-radius:10px;background:#20323a;border:1px solid #304d55;color:#dce9ec;text-decoration:none;font-size:11px;font-weight:850}
+    .smallbtn.primary{background:#1e4538;border-color:#3e7864;color:#b5ffdf}
+    .empty{min-height:140px;border:1px dashed #365159;border-radius:15px;display:flex;flex-direction:column;gap:8px;align-items:center;justify-content:center;color:#b8c9ce;padding:20px;text-align:center}
+    .empty b{font-size:16px}.empty small{color:var(--muted);font-size:12px;line-height:1.55;max-width:270px}
+    .more{margin:16px auto 0;display:block;width:100%;padding:14px;border-radius:14px;border:1px solid #3e665e;background:#18332f;color:var(--mint);font-weight:850}
+    .fineprint{font-size:11px;line-height:1.65;color:#839ba3;margin:22px 5px}
+    .fineprint a{color:#a5ddcc}
+    .bottom{position:fixed;bottom:0;left:0;right:0;z-index:10;display:flex;justify-content:center;padding:11px 15px calc(10px + env(safe-area-inset-bottom));background:#091318ed;backdrop-filter:blur(18px);border-top:1px solid #234148}
+    .nav{max-width:470px;display:flex;width:100%;gap:8px}
+    .nav button{flex:1;padding:11px 5px;background:none;border:0;color:#8daab3;border-radius:11px;font-size:12px;font-weight:800}
+    .nav button.active{color:#9effcf;background:#17332d}
+    .spinner{display:inline-block;width:16px;height:16px;border:2px solid #2c6e5d;border-top-color:#082b22;border-radius:50%;animation:spin .8s linear infinite}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    .toast{position:fixed;top:max(12px,env(safe-area-inset-top));left:50%;transform:translateX(-50%);background:#dbffe9;color:#102820;padding:11px 19px;border-radius:13px;font-size:12px;font-weight:850;box-shadow:0 10px 40px #0009;z-index:50;max-width:90vw;text-align:center}
+    [hidden]{display:none!important}
+    @media(min-width:600px){.wrap{padding-top:37px}.bottom{max-width:530px;left:50%;transform:translateX(-50%);border-radius:17px 17px 0 0}}
+    @media(prefers-reduced-motion:reduce){*,*:before,*:after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="brand">
+        <div class="logo" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m16 16 5 5M11 7v8M7 11h8"/></svg></div>
+        <div>NICKHUNT<small>TELEGRAM FINDER</small></div>
+      </div>
+      <div class="live"><span class="dot"></span> iOS / Android</div>
+    </header>
+    <main>
+      <div class="kicker">ПОИСК КОРОТКИХ ЮЗОВ</div>
+      <h1>Поймай <span>редкий</span> @username.</h1>
+      <p class="subtitle">Генерируй короткие имена и проверяй их публичный статус. Без входа в аккаунт Telegram.</p>
+      <div class="card" id="searchControls">
+        <div class="sectionlabel">01 / Количество символов</div>
+        <div class="seg" role="group" aria-label="Длина имени">
+          <button type="button" data-length="5" class="active">5 знаков</button>
+          <button type="button" data-length="6">6 знаков</button>
+          <button type="button" data-length="4">3–4 ✦</button>
+        </div>
+        <div class="hint" id="lengthHint">5 символов — минимальная длина обычного юзернейма Telegram.</div>
+        <div class="space"></div>
+        <div class="sectionlabel">02 / Стиль юзернеймов</div>
+        <div class="styles" role="group" aria-label="Стиль имени">
+          <button type="button" class="style active" data-style="rare"><strong>✦ Редкие сочетания</strong><small>x, z, q, v — без словаря</small></button>
+          <button type="button" class="style" data-style="clean"><strong>◈ Красивые</strong><small>Короткие и читаемые</small></button>
+          <button type="button" class="style" data-style="pattern"><strong>⟲ Повторы</strong><small>Заметные комбинации</small></button>
+          <button type="button" class="style" data-style="digit"><strong># С цифрами</strong><small>Больше необычных вариантов</small></button>
+        </div>
+        <button type="button" class="find" id="findBtn"><span id="findSymbol">⌕</span><span id="findLabel">Найти и проверить 15 юзов</span></button>
+        <div class="tiny">● Проверка требует интернета <span aria-hidden="true">·</span> не бронирует имена</div>
+      </div>
+      <div class="stats" aria-live="polite">
+        <div class="stat"><strong id="nPossible">0</strong><small>Возможно свободны</small></div>
+        <div class="stat"><strong id="nChecked">0</strong><small>Проверено</small></div>
+        <div class="stat"><strong id="nSaved">0</strong><small>Избранное</small></div>
+      </div>
+      <div id="messages" aria-live="polite"></div>
+      <div class="listtop" id="resultsAnchor">
+        <h2 id="listTitle">Найденные юзы</h2>
+        <select id="viewFilter" class="filter" aria-label="Фильтр юзернеймов">
+          <option value="all">Все</option><option value="possible">Возможно свободны</option><option value="unknown">Без проверки</option>
+        </select>
+      </div>
+      <div id="results" class="list" aria-live="polite"></div>
+      <button type="button" id="moreBtn" class="more" hidden>⌕ Проверить ещё 15</button>
+      <p class="fineprint">«Возможно свободен» означает только результат сторонней проверки публичных страниц, а не гарантию от Telegram. Если увидишь понравившийся вариант, сразу проверь его в Telegram → Настройки → Изменить профиль → Имя пользователя. Для коротких коллекционных имён используй <a href="https://fragment.com" target="_blank" rel="noopener noreferrer">Fragment</a>. <a href="https://core.telegram.org/method/account.checkUsername" target="_blank" rel="noopener noreferrer">Официальный метод проверки Telegram</a> требует пользовательской авторизации.</p>
+    </main>
+  </div>
+  <div class="bottom"><nav class="nav" aria-label="Навигация">
+    <button type="button" id="tabSearch" class="active">⌕ &nbsp; Поиск</button>
+    <button type="button" id="tabFavorites">☆ &nbsp; Избранное (<span id="favTabCount">0</span>)</button>
+  </nav></div>
+  <div id="toast" class="toast" role="status" hidden></div>
+  <script>
+  (() => {
+    'use strict';
+    const API = 'https://tg-username-api.vercel.app/api/v1';
+    const STORAGE = 'nickhunt.saved.v1';
+    const state = { length:'5', style:'rare', all:[], saved:new Set(), history:new Set(), tab:'search', filter:'all', busy:false, seq:0, lastError:'' };
+    const $ = id => document.getElementById(id);
+    const pool = 'abcdefghijklmnopqrstuvwxyz';
+    const rar = 'qxzvjkfwy';
+    const cons = 'bcdfghjklmnprstvwxz';
+    const vows = 'aeiouy';
+    const nums = '0123456789';
+    try { state.saved = new Set(JSON.parse(localStorage.getItem(STORAGE) || '[]')); } catch (_) {}
+    const rand = n => {
+      if (self.crypto && self.crypto.getRandomValues) {
+        const b = new Uint32Array(1); self.crypto.getRandomValues(b); return b[0] % n;
+      }
+      return Math.floor(Math.random()*n);
+    };
+    const pick = s => s[rand(s.length)];
+    const pad = (s,n) => s.slice(0,n);
+    function makeName(length, style){
+      const n = length===4 ? (rand(2)===0 ? 3 : 4) : length;
+      if (n < 5) return Array.from({length:n},()=>pick(style==='rare' ? rar+vows : pool)).join('');
+      let s='';
+      if(style==='rare') {
+        s=pick(rar)+pick(pool)+pick(rar+vows);
+        while(s.length<n) s += pick(rar+pool+nums);
+      } else if(style==='clean') {
+        let nextCons=rand(2)===0;
+        for(let i=0;i<n;i++) {s+=pick(nextCons?cons:vows);nextCons=!nextCons;}
+      } else if(style==='pattern') {
+        const a=pick(cons), b=pick(vows+nums);
+        for(let i=0;i<n;i++) s += i%2===0?a:b;
+        if (rand(4)===0) s=s.slice(0,n-1)+pick(cons);
+      } else {
+        s=pick(cons)+pick(pool+nums);
+        while(s.length<n) s+=pick(nums+pool);
+        if (!/\d/.test(s)) s=s.slice(0,n-1)+pick(nums);
+      }
+      if(!/^[a-z]/.test(s)) s=pick(pool)+s.slice(1);
+      if(s.endsWith('_')) s=s.slice(0,-1)+pick(pool);
+      return pad(s,n);
+    }
+    function estimate(name){
+      let score = name.length<=4?100:name.length===5?88:75;
+      score += /^[a-z]+$/.test(name) ? 4:0;
+      score += new Set(name).size === name.length?3:0;
+      score += /(.)\1/.test(name)?3:0;
+      score += /[_]/.test(name)?-8:0;
+      return Math.max(50,Math.min(99,score));
+    }
+    function candidates(){
+      const found=[], local=new Set(); let attempts=0;
+      while(found.length<15 && attempts++<3000){
+        const name=makeName(+state.length,state.style);
+        if(!local.has(name) && !state.history.has(name)){
+          local.add(name);state.history.add(name);
+          found.push({name,status:'pending',score:estimate(name),verified:false});
+        }
+      }
+      if(found.length<15){state.history.clear();while(found.length<15){const name=makeName(+state.length,state.style);if(!local.has(name)){local.add(name);found.push({name,status:'pending',score:estimate(name),verified:false});}}}
+      return found;
+    }
+    function setMessage(message, kind='info'){
+      $('messages').innerHTML='';
+      if(!message)return;
+      const d=document.createElement('div');d.className='note'+(kind==='warn'?' warn':'');d.textContent=message;$('messages').append(d);
+    }
+    function showToast(msg){const el=$('toast');el.textContent=msg;el.hidden=false;clearTimeout(showToast.timer);showToast.timer=setTimeout(()=>{el.hidden=true;},1850);}
+    function saveState(){try{localStorage.setItem(STORAGE,JSON.stringify([...state.saved]));}catch(_){}}
+    function setBusy(v){state.busy=v;$('findBtn').disabled=v;$('moreBtn').disabled=v;$('findSymbol').innerHTML=v?'<i class="spinner"></i>':'⌕';$('findLabel').textContent=v?'Проверяем 15 юзернеймов…':'Найти и проверить 15 юзов';}
+    function stats(){const available=state.all.filter(o=>o.status==='available'&&o.name.length>=5).length;
+      const checked=state.all.filter(o=>o.verified).length;
+      $('nPossible').textContent=available;$('nChecked').textContent=checked;$('nSaved').textContent=state.saved.size;$('favTabCount').textContent=state.saved.size;
+    }
+    function labelStatus(o){
+      if(o.name.length<5){
+        if(o.status==='taken')return ['Занят','taken'];
+        if(o.status==='fragment_collectible')return ['Коллекционный','collectible'];
+        if(o.status==='available')return ['Только Fragment','collectible'];
+        return [o.status==='checking'?'Проверяем…':'Только Fragment','collectible'];
+      }
+      switch(o.status){
+        case 'available':return ['Возможно свободен','free'];
+        case 'taken':return ['Занят','taken'];
+        case 'fragment_collectible':return ['Коллекционный','collectible'];
+        case 'checking':return ['Проверяется…','unknown'];
+        default:return ['Не подтверждён','unknown'];
+      }
+    }
+    function sortValue(o){return {available:0,fragment_collectible:1,pending:2,checking:2,unknown:3,invalid:4,taken:5}[o.status]??3;}
+    function render(){
+      stats();const node=$('results');node.innerHTML='';const fav=state.tab==='favorites';
+      $('listTitle').textContent=fav?'Избранное':'Найденные юзы';$('viewFilter').hidden=fav;
+      let items=fav?[...state.saved].map(name=>state.all.find(i=>i.name===name)||{name,status:'pending',score:estimate(name),verified:false}):[...state.all];
+      if(!fav && state.filter==='possible')items=items.filter(i=>i.status==='available'&&i.name.length>=5);
+      if(!fav && state.filter==='unknown')items=items.filter(i=>!i.verified);
+      if(!fav) items.sort((a,b)=>sortValue(a)-sortValue(b)||b.score-a.score);
+      if(!items.length){
+        const empty=document.createElement('div');empty.className='empty';
+        const b=document.createElement('b');b.textContent=fav?'Пока ничего не сохранено':state.all.length?'По этому фильтру ничего нет':'Пока тут пусто';
+        const small=document.createElement('small');small.textContent=fav?'Жми ☆ рядом с интересным именем — оно останется здесь.':state.all.length?'Выбери «Все» или попробуй другую комбинацию.':'Нажми большую кнопку выше, чтобы сгенерировать 15 вариантов.';
+        empty.append(b,small);node.append(empty);
+      }
+      for(const o of items){
+        const el=document.createElement('article');el.className='item';const status=labelStatus(o);
+        const head=document.createElement('div');head.className='itemhead';
+        const name=document.createElement('span');name.className='username';name.innerHTML='<b>@</b>'+o.name;
+        const like=document.createElement('button');like.type='button';like.className='fav'+(state.saved.has(o.name)?' on':'');like.setAttribute('aria-label','В избранное: @'+o.name);like.textContent=state.saved.has(o.name)?'★':'☆';like.dataset.action='favorite';like.dataset.name=o.name;head.append(name,like);
+        const sub=document.createElement('div');sub.className='subrow';
+        const a=document.createElement('span');a.className='tag '+status[1];a.textContent=status[0];
+        const b=document.createElement('span');b.className='tag';b.textContent=o.name.length+' '+([3,4].includes(o.name.length)?'символа':'символов');
+        const c=document.createElement('span');c.className='tag';c.textContent='Стиль '+o.score+'/100';sub.append(a,b,c);
+        const buttons=document.createElement('div');buttons.className='actions';
+        const copy=document.createElement('button');copy.type='button';copy.className='smallbtn';copy.dataset.action='copy';copy.dataset.name=o.name;copy.textContent='⧉ Копировать';buttons.append(copy);
+        const link=document.createElement('a');link.className='smallbtn primary';link.href=o.name.length<5?'https://fragment.com/username/'+encodeURIComponent(o.name):'https://t.me/'+encodeURIComponent(o.name);link.target='_blank';link.rel='noopener noreferrer';link.textContent=o.name.length<5?'↗ Fragment':'↗ Telegram';buttons.append(link);
+        const check=document.createElement('button');check.type='button';check.className='smallbtn';check.dataset.action='check';check.dataset.name=o.name;check.textContent='↻ Проверить';check.disabled=state.busy;buttons.append(check);
+        el.append(head,sub,buttons);node.append(el);
+      }
+      $('moreBtn').hidden=fav||!state.all.length;
+    }
+    async function network(url,init,ms=19000){
+      const ctrl=new AbortController();let timer=setTimeout(()=>ctrl.abort(),ms);
+      try{return await fetch(url,{...init,signal:ctrl.signal,cache:'no-store'});}finally{clearTimeout(timer);}
+    }
+    function apply(data){
+      if(!data || !data.success || !data.username)return;
+      const o=state.all.find(x=>x.name===String(data.username).replace(/^@/,'').toLowerCase());
+      if(!o)return;
+      const known=['available','taken','fragment_collectible','unknown','invalid'];
+      const s=data.result?.status;
+      o.status=known.includes(s)?s:'unknown';o.verified=known.includes(s)&&s!=='unknown';
+    }
+    async function checkSingle(name){
+      const url=API+'/check?username='+encodeURIComponent(name);
+      const r=await network(url,{},13000);
+      if(!r.ok)throw Error('HTTP '+r.status);
+      const data=await r.json();if(data.success===false)throw Error(data.error?.message||'API error');return data;
+    }
+    async function checkNames(names){
+      try{
+        const r=await network(API+'/check/bulk',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({usernames:names})},23000);
+        if(!r.ok)throw Error('HTTP '+r.status);
+        const data=await r.json();if(!Array.isArray(data.results))throw Error('Bad response');
+        for(const item of data.results)apply(item);
+        return {ok:true,source:'bulk'};
+      }catch(err){
+        // Some mobile browsers block third-party POST. Try a single public GET.
+        try{
+          const first=await checkSingle(names[0]);apply(first);render();
+          let index=1;
+          const worker=async()=>{
+            while(index<names.length){const name=names[index++];
+              try{apply(await checkSingle(name));}catch(_){const x=state.all.find(x=>x.name===name);if(x){x.status='unknown';x.verified=false;}}
+              render();
+            }
+          };
+          await Promise.all([worker(),worker(),worker()]);
+          return {ok:true,source:'single'};
+        }catch(second){return {ok:false,reason:(second?.message||err?.message||'Недоступен сервис')};}
+      }
+    }
+    async function search(){
+      if(state.busy)return;
+      state.tab='search';setTabs();state.all=candidates();state.seq++;
+      for(const x of state.all)x.status='checking';
+      setBusy(true);setMessage('Сгенерировано 15 вариантов. Проверяем по публичным источникам…');render();
+      const list=state.all.map(x=>x.name);
+      let outcome;
+      try{outcome=await checkNames(list);}catch(e){outcome={ok:false,reason:e.message};}
+      for(const o of state.all){if(o.status==='checking'){o.status='unknown';o.verified=false;}}
+      setBusy(false);
+      if(outcome.ok){
+        const matched=state.all.filter(x=>x.status==='available'&&x.name.length>=5).length;
+        setMessage(matched?`Найдено ${matched} потенциально свободных. Это не официальное подтверждение Telegram.`:'Проверка закончена. Подходящих вариантов пока нет — попробуй другой стиль или нажми ещё раз.');
+      }else{
+        setMessage('Автоматическая проверка недоступна в этом браузере или сервис временно не отвечает. Имена сгенерированы, но их статус неизвестен: используй кнопки Telegram / Fragment и проверь вручную.','warn');
+      }
+      render();
+    }
+    function setTabs(){const fav=state.tab==='favorites';$('tabFavorites').classList.toggle('active',fav);$('tabSearch').classList.toggle('active',!fav);$('searchControls').hidden=fav;$('moreBtn').hidden=fav;render();}
+    document.querySelectorAll('[data-length]').forEach(btn=>btn.addEventListener('click',()=>{
+      state.length=btn.dataset.length;document.querySelectorAll('[data-length]').forEach(x=>x.classList.toggle('active',x===btn));
+      $('lengthHint').textContent=state.length==='5'?'5 символов — минимальная длина обычного юзернейма Telegram.':state.length==='6'?'6 символов — вариантов заметно больше, чем среди 5-символьных.':'3–4 символа — только коллекционные имена (Fragment), не бесплатные обычные юзы.';
+    }));
+    document.querySelectorAll('[data-style]').forEach(btn=>btn.addEventListener('click',()=>{
+      state.style=btn.dataset.style;document.querySelectorAll('[data-style]').forEach(x=>x.classList.toggle('active',x===btn));
+    }));
+    $('findBtn').addEventListener('click',search);$('moreBtn').addEventListener('click',()=>{window.scrollTo({top:0,behavior:'smooth'});search();});
+    $('viewFilter').addEventListener('change',e=>{state.filter=e.target.value;render();});
+    $('tabSearch').addEventListener('click',()=>{state.tab='search';setTabs();window.scrollTo({top:0,behavior:'smooth'});});
+    $('tabFavorites').addEventListener('click',()=>{state.tab='favorites';setTabs();window.scrollTo({top:0,behavior:'smooth'});});
+    $('results').addEventListener('click',async e=>{
+      const button=e.target.closest('button[data-action]');if(!button)return;
+      const {action,name}=button.dataset;
+      if(action==='favorite'){
+        state.saved.has(name)?state.saved.delete(name):state.saved.add(name);saveState();render();showToast(state.saved.has(name)?'Добавлено в избранное':'Убрано из избранного');
+      }
+      if(action==='copy'){
+        const val='@'+name;
+        try{await navigator.clipboard.writeText(val);}catch(_){const field=document.createElement('textarea');field.value=val;document.body.append(field);field.select();document.execCommand('copy');field.remove();}
+        showToast('Скопировано '+val);
+      }
+      if(action==='check'){
+        button.disabled=true;button.textContent='Проверяем…';
+        try{apply(await checkSingle(name));showToast('Проверка завершена');}
+        catch(_){showToast('Не удалось проверить. Попробуй позже');}
+        render();
+      }
+    });
+    stats();render();
+    if('serviceWorker' in navigator && location.protocol.startsWith('http')){
+      window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));
+    }
+  })();
+  </script>
+</body>
+</html>
